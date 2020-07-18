@@ -1,7 +1,7 @@
 #include "Game.h"
 
 Game::Game()
-	:mWindow(),mIsRunning(true)
+	:mWindow(NULL), renderer(NULL), mIsRunning(true), ticksCount(0)
 {
 }
 
@@ -18,8 +18,8 @@ bool Game::Initialize()
 		"Game Programing",    //タイトル
 		100,                  //ウィンドウ左上のx座標
 		100,                  //ウィンドウ左上のy座標
-		1024,                 //ウィンドウの幅
-		768,                  //ウィンドウの高さ
+		WINDOW_WIDTH,                 //ウィンドウの幅
+		WINDOW_HEIGHT,                  //ウィンドウの高さ
 		0);
 
 	//ウィンドウの生成に成功したか
@@ -28,6 +28,12 @@ bool Game::Initialize()
 		return false;
 	}
 
+	//レンダラーの作成
+	renderer = SDL_CreateRenderer(
+		mWindow,
+		-1,
+		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+	);
 	return true;
 }
 
@@ -44,6 +50,7 @@ void Game::ShutDown()
 {
 	//ウィンドウの破棄
 	SDL_DestroyWindow(mWindow);
+	SDL_DestroyRenderer(renderer);
 	//SDLの終了
 	SDL_Quit();
 }
@@ -68,10 +75,41 @@ void Game::ProcessInput()
 		mIsRunning = false;
 }
 
+/// <summary>
+/// ゲーム更新
+/// </summary>
 void Game::UpdateGame()
 {
+	float deltaTime = DeltaTime();
 }
 
+//出力(描画時、左上が原点)
 void Game::GenerateOutput()
 {
+	//背景色の設定
+	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+
+	//画面のクリア
+	SDL_RenderClear(renderer);
+	//フロントバッファとバックバッファを切り替える
+	SDL_RenderPresent(renderer);
+}
+
+float Game::DeltaTime()
+{
+	//前のフレームから16ms経過するまで待つ
+	while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksCount + 16)) {}
+
+	//デルタタイムを求める(現在のミリ秒-位置フレーム前のミリ秒)
+	float deltaTime = (SDL_GetTicks() - ticksCount) / 1000.0f;
+
+	//デルタタイムの最大値固定
+
+	if (deltaTime > 0.05f)
+		deltaTime = 0.05f;
+
+	//現在のフレームのミリ秒保存
+	ticksCount = SDL_GetTicks();
+
+	return deltaTime;
 }

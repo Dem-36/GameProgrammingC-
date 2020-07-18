@@ -3,6 +3,9 @@
 
 #include"SDL.h"
 
+#define WINDOW_WIDTH 1024
+#define WINDOW_HEIGHT 768
+
 class Game
 {
 public:
@@ -18,9 +21,16 @@ private:
 	void ProcessInput();
 	void UpdateGame();
 	void GenerateOutput();
+
+	float DeltaTime();
 private:
 	//SDLが作成するウィンドウ
 	SDL_Window* mWindow;
+	//Rendererクラス
+	SDL_Renderer* renderer;
+
+	Uint32 ticksCount;
+
 	bool mIsRunning;
 };
 
